@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="MoniClient/MoniClient.csproj" />
+  <Project Path="MoniServer/MoniServer.csproj" />
+  <Project Path="MoniShared/MoniShared.csproj" />
+</Solution>

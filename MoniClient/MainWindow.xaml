@@ -1,0 +1,31 @@
+﻿<Window
+    x:Class="MoniClient.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:ikw="http://schemas.inkore.net/lib/ui/wpf"
+    xmlns:local="clr-namespace:MoniClient"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="http://schemas.inkore.net/lib/ui/wpf/modern"
+    Title="MainWindow"
+    Width="800"
+    Height="450"
+    d:DataContext="{d:DesignInstance Type=local:MainWindowViewModel}"
+    ui:TitleBar.Height="36"
+    ui:WindowHelper.SystemBackdropType="Mica"
+    ui:WindowHelper.UseModernWindowStyle="True"
+    mc:Ignorable="d">
+    <ikw:SimpleStackPanel VerticalAlignment="Center" Spacing="5">
+        <TextBlock
+            FontSize="24"
+            FontWeight="Bold"
+            Text="Test MagicOnion"
+            TextAlignment="Center" />
+
+        <Button
+            Margin="0,20,0,0"
+            HorizontalAlignment="Center"
+            Command="{Binding GetCommand}"
+            Content="like Get/Post" />
+    </ikw:SimpleStackPanel>
+</Window>
