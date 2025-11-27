@@ -1,5 +1,6 @@
 <Solution>
   <Project Path="MoniClient/MoniClient.csproj" />
+  <Project Path="MonionCore/MonionCore.csproj" Id="55712591-5d82-461c-8978-d9726f95c816" />
   <Project Path="MoniServer/MoniServer.csproj" />
   <Project Path="MoniShared/MoniShared.csproj" />
 </Solution>
