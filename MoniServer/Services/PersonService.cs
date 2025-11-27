@@ -7,7 +7,7 @@ namespace MoniServer.Services
 {
     public class PersonService : ServiceBase<IPersonService>, IPersonService
     {
-        public async UnaryResult<Person> GetPerson(int id)
+        public async UnaryResult<Person> GetPerson()
         {
             return new Person()
             {

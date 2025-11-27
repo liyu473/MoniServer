@@ -25,7 +25,17 @@
         <Button
             Margin="0,20,0,0"
             HorizontalAlignment="Center"
-            Command="{Binding GetCommand}"
-            Content="like Get/Post" />
+            Command="{Binding CalculatorCommand}"
+            Content="Calculaor" />
+        <Button
+            Margin="0,20,0,0"
+            HorizontalAlignment="Center"
+            Command="{Binding SayHelloCommand}"
+            Content="SayHello" />
+        <Button
+            Margin="0,20,0,0"
+            HorizontalAlignment="Center"
+            Command="{Binding GetPersonCommand}"
+            Content="GetPerson" />
     </ikw:SimpleStackPanel>
 </Window>

@@ -5,5 +5,5 @@ namespace MoniShared.SharedIService;
 
 public interface IPersonService: IService<IPersonService>
 {
-    UnaryResult<Person> GetPerson(int id);
+    UnaryResult<Person> GetPerson();
 }
