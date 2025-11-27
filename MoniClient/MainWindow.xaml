@@ -37,5 +37,29 @@
             HorizontalAlignment="Center"
             Command="{Binding GetPersonCommand}"
             Content="GetPerson" />
+
+        <ikw:SimpleStackPanel
+            Margin="20"
+            HorizontalAlignment="Center"
+            Orientation="Horizontal"
+            Spacing="20">
+            <Button
+                HorizontalAlignment="Center"
+                Command="{Binding JoinRoomCommand}"
+                Content="加入房间" />
+            <Button Command="{Binding LeaveRoomCommand}" Content="离开房间" />
+        </ikw:SimpleStackPanel>
+
+        <ikw:SimpleStackPanel
+            Margin="20"
+            HorizontalAlignment="Center"
+            Orientation="Horizontal"
+            Spacing="20">
+            <Button
+                HorizontalAlignment="Center"
+                Command="{Binding ServerSendForAllCommand}"
+                Content="让服务器广播消息" />
+            <Button Command="{Binding ServerSendForSingleCommand}" Content="让服务器指定此客户端发送" />
+        </ikw:SimpleStackPanel>
     </ikw:SimpleStackPanel>
 </Window>

@@ -1,4 +1,5 @@
 using LogExtension;
+using MoniServer.Services;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
@@ -27,6 +28,9 @@ builder.Services.AddZLogger(config =>
 });
 
 builder.Services.AddMagicOnion();
+
+
+builder.Services.AddSingleton<INotificationPushService, NotificationPushService>();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 // 官方支持取代Swagger
