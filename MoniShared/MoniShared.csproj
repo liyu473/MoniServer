@@ -11,7 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MonionCore\MonionCore.csproj" />
+    <ProjectReference Include="..\MonionCore\LyuMonionCore.csproj" />
   </ItemGroup>
 
 </Project>
