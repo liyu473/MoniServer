@@ -1,5 +1,5 @@
 ﻿using MoniClient.Service;
-using MoniShared.Notification;
+using MonionCore.Notification;
 
 namespace MoniClient.Extension;
 

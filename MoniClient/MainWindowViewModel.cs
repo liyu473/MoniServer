@@ -4,7 +4,7 @@ using Grpc.Net.Client;
 using MagicOnion.Client;
 using MoniClient.Extension;
 using MoniClient.Service;
-using MoniShared.Notification;
+using MonionCore.Notification;
 using MoniShared.SharedDto;
 using MoniShared.SharedIService;
 using MessageBox = iNKORE.UI.WPF.Modern.Controls.MessageBox;

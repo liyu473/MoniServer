@@ -1,6 +1,6 @@
 using MessagePack;
 
-namespace MoniShared.Notification;
+namespace MonionCore.Notification;
 
 /// <summary>
 /// 通用通知消息
@@ -9,7 +9,7 @@ namespace MoniShared.Notification;
 public class NotificationMessage
 {
     /// <summary>
-    /// 数据类型标识（如 "Person"）
+    /// 数据类型标识（如 "Person", "Order"）
     /// </summary>
     [Key(0)]
     public string Type { get; set; } = "";
