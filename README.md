@@ -1,4 +1,4 @@
-# MoniServer
+# MonionCore
 
 基于 [MagicOnion](https://github.com/Cysharp/MagicOnion) 框架的 .NET 10 gRPC 服务示例项目，包含服务端、客户端（仅限于.Net客户端）（以WPF为例），共享库（双方定义的服务接口和DTO）和包核心库（内置MagicOnion和部分通用接口以简化使用）。
 

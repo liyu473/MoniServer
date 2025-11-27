@@ -29,7 +29,6 @@ public class NotificationReceiver : NotificationReceiverBase
 
     protected override void OnUnknownMessage(string type, byte[] data)
     {
-        // 可以记录日志或触发事件
-        System.Diagnostics.Debug.WriteLine($"收到未知类型消息: {type}");
-    }
+        // 接收到意外数据
+    }    
 }
