@@ -5,6 +5,7 @@ using MagicOnion.Client;
 using MoniClient.Extension;
 using MoniClient.Service;
 using MoniShared.Notification;
+using MoniShared.SharedDto;
 using MoniShared.SharedIService;
 using MessageBox = iNKORE.UI.WPF.Modern.Controls.MessageBox;
 
@@ -45,7 +46,9 @@ public partial class MainWindowViewModel(
     [RelayCommand]
     private async Task JoinRoom()
     {
-        receiver.GetReceiver().MessageReceived += OnMessage;
+        var r = receiver.GetReceiver();
+        r.StringReceived += OnStringReceived;
+        r.PersonReceived += OnPersonReceived;
 
         hub = await StreamingHubClient.ConnectAsync<INotificationHub, INotificationReceiver>(
             channel,
@@ -60,7 +63,9 @@ public partial class MainWindowViewModel(
     {
         if (hub is not null)
         {
-            receiver.GetReceiver().MessageReceived -= OnMessage;
+            var r = receiver.GetReceiver();
+            r.StringReceived -= OnStringReceived;
+            r.PersonReceived -= OnPersonReceived;
             await hub.DisposeAsync();
         }
     }
@@ -79,5 +84,20 @@ public partial class MainWindowViewModel(
         await client.SendMessageFor("Client1");
     }
 
-    private void OnMessage(string msg) => MessageBox.Show(msg);
+    private void OnStringReceived(string msg) => MessageBox.Show($"[字符串] {msg}");
+    private void OnPersonReceived(Person person) => MessageBox.Show($"[Person] {person}");
+
+    [RelayCommand]
+    private async Task SendPerson()
+    {
+        var client = monion.Create<INotification>();
+        await client.SendPersonFor(
+            new Person()
+            {
+                Id = 2,
+                Name = "小红",
+                Age = 20,
+            }
+        );
+    }
 }

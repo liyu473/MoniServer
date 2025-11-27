@@ -61,5 +61,11 @@
                 Content="让服务器广播消息" />
             <Button Command="{Binding ServerSendForSingleCommand}" Content="让服务器指定此客户端发送" />
         </ikw:SimpleStackPanel>
+
+        <Button
+            Margin="0,20,0,0"
+            HorizontalAlignment="Center"
+            Command="{Binding SendPersonCommand}"
+            Content="广播Person类" />
     </ikw:SimpleStackPanel>
 </Window>

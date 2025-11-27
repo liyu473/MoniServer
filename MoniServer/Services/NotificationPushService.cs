@@ -3,22 +3,19 @@ using MoniServer.Hub;
 namespace MoniServer.Services;
 
 /// <summary>
-/// 通知推送服务
+/// 通知推送服务 - 支持任意类型
 /// </summary>
 public interface INotificationPushService
 {
     /// <summary>
-    /// 推送消息给所有客户端
+    /// 推送任意类型数据给所有客户端
     /// </summary>
-    void PushToAll(string message);
+    void PushToAll<T>(T data);
 
     /// <summary>
-    /// 推送消息给指定客户端
+    /// 推送任意类型数据给指定客户端
     /// </summary>
-    /// <param name="clientName">客户端名称（JoinAsync时传入的名称）</param>
-    /// <param name="message">消息内容</param>
-    /// <returns>是否发送成功</returns>
-    bool PushToClient(string clientName, string message);
+    bool PushToClient<T>(string clientName, T data);
 
     /// <summary>
     /// 获取所有已连接的客户端名称
@@ -28,14 +25,14 @@ public interface INotificationPushService
 
 public class NotificationPushService : INotificationPushService
 {
-    public void PushToAll(string message)
+    public void PushToAll<T>(T data)
     {
-        NotificationHub.PushToAll(message);
+        NotificationHub.PushToAll(data);
     }
 
-    public bool PushToClient(string clientName, string message)
+    public bool PushToClient<T>(string clientName, T data)
     {
-        return NotificationHub.PushToClient(clientName, message);
+        return NotificationHub.PushToClient(clientName, data);
     }
 
     public IEnumerable<string> GetConnectedClients()

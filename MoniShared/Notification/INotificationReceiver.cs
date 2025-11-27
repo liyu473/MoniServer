@@ -2,5 +2,8 @@
 
 public interface INotificationReceiver
 {
-    void OnMessage(string message);
+    /// <summary>
+    /// 接收通用消息（支持任意类型）
+    /// </summary>
+    void OnMessage(NotificationMessage message);
 }
