@@ -7,15 +7,15 @@
 
 		<!-- NuGet 包信息 -->
 		<PackageId>LyuMonionCore</PackageId>
-		<Version>1.1.0</Version>
+		<Version>1.1.2</Version>
 		<Authors>Liyu</Authors>
 		<Description>基于MagicOnion，简化服务器对多客户端的通信实现</Description>
 		<PackageTags>MagicOnion;Client;Hub</PackageTags>
 
 		<!-- GitHub 仓库信息 -->
-		<RepositoryUrl>https://github.com/liyu473/MonionCore</RepositoryUrl>
+		<RepositoryUrl>https://github.com/liyu473/LyuMonionCore</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
-		<PackageProjectUrl>https://github.com/liyu473/MonionCore</PackageProjectUrl>
+		<PackageProjectUrl>https://github.com/liyu473/LyuMonionCore</PackageProjectUrl>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 
 		<!-- 打包时自动生成 nupkg -->
