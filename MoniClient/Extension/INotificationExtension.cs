@@ -1,5 +1,5 @@
-﻿using MoniClient.Service;
-using MonionCore.Notification;
+﻿using LyuMonionCore.Notification;
+using MoniClient.Service;
 
 namespace MoniClient.Extension;
 

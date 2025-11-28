@@ -1,13 +1,13 @@
 using MessagePack;
 
-namespace MonionCore.Notification;
+namespace LyuMonionCore.Notification;
 
 /// <summary>
 /// 通知接收器基类 - 客户端继承此类并注册类型处理器
 /// </summary>
 public abstract class NotificationReceiverBase : INotificationReceiver
 {
-    private readonly Dictionary<string, Action<byte[]>> _handlers = new();
+    private readonly Dictionary<string, Action<byte[]>> _handlers = [];
 
     /// <summary>
     /// 注册类型处理器

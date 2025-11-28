@@ -1,4 +1,4 @@
-﻿using MonionCore.Notification;
+﻿using LyuMonionCore.Notification;
 using ZLogger;
 
 namespace MoniServer.Hub;

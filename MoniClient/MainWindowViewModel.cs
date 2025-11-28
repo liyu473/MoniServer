@@ -1,10 +1,10 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Grpc.Net.Client;
+using LyuMonionCore.Notification;
 using MagicOnion.Client;
 using MoniClient.Extension;
 using MoniClient.Service;
-using MonionCore.Notification;
 using MoniShared.SharedDto;
 using MoniShared.SharedIService;
 using MessageBox = iNKORE.UI.WPF.Modern.Controls.MessageBox;

@@ -1,4 +1,4 @@
-﻿using MonionCore.Notification;
+﻿using LyuMonionCore.Notification;
 using MoniShared.SharedDto;
 using System.Windows;
 

@@ -2,10 +2,11 @@ using System.Collections.Concurrent;
 using MagicOnion.Server.Hubs;
 using MessagePack;
 
-namespace MonionCore.Notification;
+namespace LyuMonionCore.Notification;
 
 /// <summary>
 /// 通知 Hub 基类 - 服务器端继承此类即可
+/// 一个客户端对应一个Hub(Base)实例
 /// </summary>
 public abstract class NotificationHubBase
     : StreamingHubBase<INotificationHub, INotificationReceiver>,

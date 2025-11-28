@@ -1,9 +1,10 @@
 using MagicOnion;
 
-namespace MonionCore.Notification;
+namespace LyuMonionCore.Notification;
 
 /// <summary>
-/// 通知 Hub 接口 - 定义客户端可以调用的方法
+/// 服务器实现（主房间，客户端）
+/// 一个客户端对应一个Hub实例
 /// </summary>
 public interface INotificationHub : IStreamingHub<INotificationHub, INotificationReceiver>
 {

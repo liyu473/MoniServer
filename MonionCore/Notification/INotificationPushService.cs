@@ -1,4 +1,4 @@
-namespace MonionCore.Notification;
+namespace LyuMonionCore.Notification;
 
 /// <summary>
 /// 通知推送服务接口

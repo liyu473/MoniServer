@@ -1,5 +1,5 @@
 using LogExtension;
-using MonionCore.Notification;
+using LyuMonionCore.Notification;
 using MoniServer.Services;
 using Scalar.AspNetCore;
 
