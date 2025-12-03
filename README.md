@@ -104,16 +104,33 @@ public partial class JabService
 
 1. 继承 `NotificationHubBase`：
 ```csharp
-public class NotificationHub : NotificationHubBase { }
+public class NotificationHub : NotificationHubBase 
+{
+    //1对多的情况，1对1可忽略
+    protected override void OnClientJoined(string clientName, Guid connectionId)
+    {
+        
+    }
+
+    protected override void OnClientDisconnected(string clientName)
+    {
+       
+    }
+}
 ```
 
 2. 注册推送服务：
 ```csharp
 builder.Services.AddSingleton<INotificationPushService, NotificationPushService>();
+
+builder.Services.AddMagicOnion();
+
+app.MapMagicOnionService();
 ```
 
 3. 推送消息：
 ```csharp
+//泛型数据类型，加上MessagePackObject即可
 // 推送给所有客户端
 pushService.PushToAll("消息内容");
 pushService.PushToAll(new Person { Name = "张三" });
