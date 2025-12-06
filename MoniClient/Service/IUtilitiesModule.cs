@@ -5,7 +5,7 @@ using LyuMonionCore.Client;
 namespace MoniClient.Service;
 
 [ServiceProviderModule]
-[Transient<IMonionService, MonionSerrvice>]
+[Transient<IMonionService, MonionService>]
 [Singleton(typeof(NotificationClient), Factory = nameof(BuildNotificationClient))]
 internal interface IUtilitiesModule
 {

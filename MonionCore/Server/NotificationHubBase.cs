@@ -7,10 +7,10 @@ using MessagePack;
 namespace LyuMonionCore.Server;
 
 /// <summary>
-/// 通知 Hub - 服务器端可直接使用或继承扩展
+/// 通知 Hub 基类 - 服务器端必须继承此类
 /// 一个客户端对应一个Hub实例
 /// </summary>
-public class NotificationHubBase
+public abstract class NotificationHubBase
     : StreamingHubBase<INotificationHub, INotificationReceiver>,
         INotificationHub
 {
