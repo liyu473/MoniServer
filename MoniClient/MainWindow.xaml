@@ -81,10 +81,14 @@
                                 <DataTrigger Binding="{Binding IsConnected}" Value="True">
                                     <Setter Property="Fill" Value="LimeGreen" />
                                 </DataTrigger>
+                                <DataTrigger Binding="{Binding IsHeartbeatFlashing}" Value="True">
+                                    <Setter Property="Fill" Value="White" />
+                                </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </Ellipse.Style>
                 </Ellipse>
+                <TextBlock Margin="-10,0,0,0" Text="（实时轮询而不是房间心跳）" />
                 <TextBlock VerticalAlignment="Center" Text="{Binding ConnectionStatus}" />
             </ikw:SimpleStackPanel>
 

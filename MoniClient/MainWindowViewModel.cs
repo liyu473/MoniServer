@@ -2,6 +2,7 @@
 using CommunityToolkit.Mvvm.Input;
 using LyuMonionCore.Client;
 using LyuMonionCore.Client.Handlers;
+using LyuMonionCore.Client.Polling;
 using MoniShared.SharedDto;
 using MoniShared.SharedIService;
 using MessageBox = iNKORE.UI.WPF.Modern.Controls.MessageBox;
@@ -13,9 +14,13 @@ public partial class MainWindowViewModel : ObservableObject
     private readonly IMonionService _monion;
     private readonly NotificationClient _notificationClient;
     private AutoReconnectHandler? _reconnectHandler;
+    private IPollingHandle? _heartbeatPolling;
 
     [ObservableProperty]
     private bool _isConnected;
+
+    [ObservableProperty]
+    private bool _isHeartbeatFlashing;
 
     [ObservableProperty]
     private string _connectionStatus = "未连接";
@@ -27,12 +32,30 @@ public partial class MainWindowViewModel : ObservableObject
 
         // 监听连接状态变化
         _notificationClient.OnConnectionStateChanged(OnConnectionStateChanged);
+
+        // 轮询使用 Unary 服务，独立于 StreamingHub 房间连接，应用启动即开始
+        StartHeartbeatPolling();
     }
 
     private void OnConnectionStateChanged(bool connected)
     {
         IsConnected = connected;
         ConnectionStatus = connected ? "已连接" : "未连接";
+    }
+
+    /// <summary>
+    /// 轮询走的是 Unary 服务，不依赖于通知连接
+    /// </summary>
+    private void StartHeartbeatPolling()
+    {
+        _heartbeatPolling = _monion.EnablePolling<IHelloService, string>(
+            service => service.SayHello("heartbeat"),
+            TimeSpan.FromSeconds(0.3),
+            onData: _ => IsHeartbeatFlashing = !IsHeartbeatFlashing,
+            onError: ex => System.Diagnostics.Debug.WriteLine($"心跳失败: {ex.Message}")
+        );
+
+        //add other polly works here if needed
     }
 
     [RelayCommand]
@@ -68,7 +91,7 @@ public partial class MainWindowViewModel : ObservableObject
 
         // 启用自动重连
         _reconnectHandler = _notificationClient.EnableAutoReconnect(
-            maxRetries: 3, // 无限重试
+            maxRetries: -1,
             retryInterval: TimeSpan.FromSeconds(3),
             onReconnectAttempt: (current, max) => ConnectionStatus = $"重连中 ({current})...",
             onReconnectFailed: () => ConnectionStatus = "重连失败"
@@ -81,6 +104,7 @@ public partial class MainWindowViewModel : ObservableObject
     private async Task LeaveRoom()
     {
         _reconnectHandler?.Dispose();
+
         await _notificationClient.DisconnectAsync();
     }
 
