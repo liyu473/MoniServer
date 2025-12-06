@@ -13,14 +13,24 @@ public class AutoReconnectHandler : IDisposable
     private bool _disposed;
 
     /// <summary>
-    /// 重连尝试事件（参数：当前重试次数，最大重试次数）
+    /// 重连尝试事件（同步）
     /// </summary>
     public event Action<int, int>? ReconnectAttempt;
 
     /// <summary>
-    /// 重连失败事件（已达最大重试次数）
+    /// 重连尝试事件（异步）
+    /// </summary>
+    public event Func<int, int, Task>? ReconnectAttemptAsync;
+
+    /// <summary>
+    /// 重连失败事件（同步）
     /// </summary>
     public event Action? ReconnectFailed;
+
+    /// <summary>
+    /// 重连失败事件（异步）
+    /// </summary>
+    public event Func<Task>? ReconnectFailedAsync;
 
     internal AutoReconnectHandler(NotificationClient client, int maxRetries, TimeSpan retryInterval)
     {
@@ -54,7 +64,10 @@ public class AutoReconnectHandler : IDisposable
         while (!_disposed && (_maxRetries == -1 || _currentRetryCount < _maxRetries))
         {
             _currentRetryCount++;
+            
             ReconnectAttempt?.Invoke(_currentRetryCount, _maxRetries);
+            if (ReconnectAttemptAsync is not null)
+                await ReconnectAttemptAsync.Invoke(_currentRetryCount, _maxRetries);
 
             try
             {
@@ -74,6 +87,8 @@ public class AutoReconnectHandler : IDisposable
         }
 
         ReconnectFailed?.Invoke();
+        if (ReconnectFailedAsync is not null)
+            await ReconnectFailedAsync.Invoke();
     }
 
     public void Dispose()

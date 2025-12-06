@@ -11,14 +11,24 @@ public class HeartbeatHandler : IDisposable
     private bool _disposed;
 
     /// <summary>
-    /// 心跳发送事件
+    /// 心跳发送事件（同步）
     /// </summary>
     public event Action? HeartbeatSent;
 
     /// <summary>
-    /// 心跳失败事件
+    /// 心跳发送事件（异步）
+    /// </summary>
+    public event Func<Task>? HeartbeatSentAsync;
+
+    /// <summary>
+    /// 心跳失败事件（同步）
     /// </summary>
     public event Action<Exception>? HeartbeatFailed;
+
+    /// <summary>
+    /// 心跳失败事件（异步）
+    /// </summary>
+    public event Func<Exception, Task>? HeartbeatFailedAsync;
 
     internal HeartbeatHandler(NotificationClient client, TimeSpan interval)
     {
@@ -71,7 +81,10 @@ public class HeartbeatHandler : IDisposable
                 if (_client.IsConnected)
                 {
                     await _client.SendHeartbeatAsync();
+                    
                     HeartbeatSent?.Invoke();
+                    if (HeartbeatSentAsync is not null)
+                        await HeartbeatSentAsync.Invoke();
                 }
             }
             catch (OperationCanceledException)
@@ -81,6 +94,8 @@ public class HeartbeatHandler : IDisposable
             catch (Exception ex)
             {
                 HeartbeatFailed?.Invoke(ex);
+                if (HeartbeatFailedAsync is not null)
+                    await HeartbeatFailedAsync.Invoke(ex);
                 break;
             }
         }
