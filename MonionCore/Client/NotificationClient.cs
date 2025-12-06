@@ -22,7 +22,6 @@ public class NotificationClient : INotificationReceiver, IAsyncDisposable
 {
     private readonly GrpcChannel _channel;
     private readonly Dictionary<string, Action<byte[]>> _handlers = [];
-    private readonly Action<Action>? _dispatcher;
     private INotificationHub? _hub;
     private bool _disposed;
 
@@ -40,22 +39,18 @@ public class NotificationClient : INotificationReceiver, IAsyncDisposable
     /// 创建通知客户端
     /// </summary>
     /// <param name="serverAddress">服务器地址</param>
-    /// <param name="dispatcher">UI线程调度器（WPF: action => Dispatcher.Invoke(action)）</param>
-    public NotificationClient(string serverAddress, Action<Action>? dispatcher = null)
+    public NotificationClient(string serverAddress)
     {
         _channel = GrpcChannel.ForAddress(serverAddress);
-        _dispatcher = dispatcher;
     }
 
     /// <summary>
     /// 创建通知客户端（使用已有的 GrpcChannel）
     /// </summary>
     /// <param name="channel">gRPC 通道</param>
-    /// <param name="dispatcher">UI线程调度器</param>
-    public NotificationClient(GrpcChannel channel, Action<Action>? dispatcher = null)
+    public NotificationClient(GrpcChannel channel)
     {
         _channel = channel;
-        _dispatcher = dispatcher;
     }
 
     /// <summary>
@@ -105,22 +100,14 @@ public class NotificationClient : INotificationReceiver, IAsyncDisposable
     /// </summary>
     void INotificationReceiver.OnMessage(NotificationMessage message)
     {
-        void ProcessMessage()
+        if (_handlers.TryGetValue(message.Type, out var handler))
         {
-            if (_handlers.TryGetValue(message.Type, out var handler))
-            {
-                handler(message.Data);
-            }
-            else
-            {
-                OnUnknownMessage?.Invoke(message.Type, message.Data);
-            }
+            handler(message.Data);
         }
-
-        if (_dispatcher is not null)
-            _dispatcher(ProcessMessage);
         else
-            ProcessMessage();
+        {
+            OnUnknownMessage?.Invoke(message.Type, message.Data);
+        }
     }
 
     /// <summary>

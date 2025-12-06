@@ -1,11 +1,13 @@
-﻿using Jab;
-using LyuMonionCore.Abstractions;
+﻿using Grpc.Net.Client;
+using Jab;
+using LyuMonionCore.Client;
 
 namespace MoniClient.Service;
 
 [ServiceProviderModule]
 [Transient<IMonionService, MonionSerrvice>]
-[Singleton<INotificationReceiver, NotificationReceiver>]//在客户端内部一个客户端一个单例接收者
+[Singleton(typeof(NotificationClient), Factory = nameof(BuildNotificationClient))]
 internal interface IUtilitiesModule
 {
+    static NotificationClient BuildNotificationClient(GrpcChannel channel) => new(channel);
 }

@@ -1,9 +1,7 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Windows;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Grpc.Net.Client;
-using LyuMonionCore.Abstractions;
-using MagicOnion.Client;
-using MoniClient.Extension;
+using LyuMonionCore.Client;
 using MoniClient.Service;
 using MoniShared.SharedDto;
 using MoniShared.SharedIService;
@@ -11,14 +9,9 @@ using MessageBox = iNKORE.UI.WPF.Modern.Controls.MessageBox;
 
 namespace MoniClient;
 
-public partial class MainWindowViewModel(
-    IMonionService monion,
-    GrpcChannel channel,
-    INotificationReceiver receiver
-) : ObservableObject
+public partial class MainWindowViewModel(IMonionService monion, NotificationClient notificationClient)
+    : ObservableObject
 {
-    private INotificationHub? hub;
-
     [RelayCommand]
     private async Task Calculator()
     {
@@ -46,28 +39,17 @@ public partial class MainWindowViewModel(
     [RelayCommand]
     private async Task JoinRoom()
     {
-        var r = receiver.GetReceiver();
-        r.StringReceived += OnStringReceived;
-        r.PersonReceived += OnPersonReceived;
+        notificationClient
+            .On<string>(OnStringReceived)
+            .On<Person>(OnPersonReceived);
 
-        hub = await StreamingHubClient.ConnectAsync<INotificationHub, INotificationReceiver>(
-            channel,
-            receiver
-        );
-
-        await hub.JoinAsync("Client1");
+        await notificationClient.ConnectAsync("Client1");
     }
 
     [RelayCommand]
     private async Task LeaveRoom()
     {
-        if (hub is not null)
-        {
-            var r = receiver.GetReceiver();
-            r.StringReceived -= OnStringReceived;
-            r.PersonReceived -= OnPersonReceived;
-            await hub.DisposeAsync();
-        }
+        await notificationClient.DisconnectAsync();
     }
 
     [RelayCommand]
