@@ -9,55 +9,47 @@ namespace LyuMonionCore.Client;
 /// <summary>
 /// 通知客户端 - 封装连接管理和消息订阅
 /// </summary>
-/// <example>
-/// var client = new NotificationClient("https://localhost:5001");
-/// client.On&lt;string&gt;(msg => Console.WriteLine(msg));
-/// client.On&lt;Person&gt;(person => Console.WriteLine(person));
-/// await client.ConnectAsync("MyClient");
-/// 
-/// // 断开连接
-/// await client.DisconnectAsync();
-/// </example>
 public class NotificationClient : INotificationReceiver, IAsyncDisposable
 {
-    private readonly GrpcChannel _channel;
     private readonly Dictionary<string, Action<byte[]>> _handlers = [];
     private INotificationHub? _hub;
     private bool _disposed;
+
+    internal GrpcChannel Channel { get; }
+    internal string? ClientName { get; private set; }
 
     /// <summary>
     /// 连接状态
     /// </summary>
     public bool IsConnected => _hub is not null;
 
-    /// <summary>
-    /// 客户端名称
-    /// </summary>
-    public string? ClientName { get; private set; }
+    // 同步事件
+    internal event Action<bool>? ConnectionStateChangedSync;
+    // 异步事件
+    internal event Func<bool, Task>? ConnectionStateChangedAsync;
+
+    internal event Action<string, byte[]>? UnknownMessageReceivedSync;
+    internal event Func<string, byte[], Task>? UnknownMessageReceivedAsync;
 
     /// <summary>
     /// 创建通知客户端
     /// </summary>
-    /// <param name="serverAddress">服务器地址</param>
     public NotificationClient(string serverAddress)
     {
-        _channel = GrpcChannel.ForAddress(serverAddress);
+        Channel = GrpcChannel.ForAddress(serverAddress);
     }
 
     /// <summary>
     /// 创建通知客户端（使用已有的 GrpcChannel）
     /// </summary>
-    /// <param name="channel">gRPC 通道</param>
     public NotificationClient(GrpcChannel channel)
     {
-        _channel = channel;
+        Channel = channel;
     }
 
     /// <summary>
     /// 注册消息处理器
     /// </summary>
-    /// <typeparam name="T">消息类型</typeparam>
-    /// <param name="handler">处理函数</param>
     public NotificationClient On<T>(Action<T> handler)
     {
         _handlers[typeof(T).Name] = data =>
@@ -71,15 +63,60 @@ public class NotificationClient : INotificationReceiver, IAsyncDisposable
     /// <summary>
     /// 连接到服务器并加入通知
     /// </summary>
-    /// <param name="clientName">客户端标识名称</param>
     public async Task ConnectAsync(string clientName)
     {
         if (_hub is not null)
             throw new InvalidOperationException("Already connected. Call DisconnectAsync first.");
 
         ClientName = clientName;
-        _hub = await StreamingHubClient.ConnectAsync<INotificationHub, INotificationReceiver>(_channel, this);
-        await _hub.JoinAsync(clientName);
+        await ConnectInternalAsync();
+    }
+
+    internal async Task ConnectInternalAsync()
+    {
+        _hub = await StreamingHubClient.ConnectAsync<INotificationHub, INotificationReceiver>(Channel, this);
+        await _hub.JoinAsync(ClientName!);
+        await RaiseConnectionStateChangedAsync(true);
+    }
+
+    internal async Task WaitForDisconnectAsync()
+    {
+        if (_hub is null) return;
+
+        try
+        {
+            await _hub.WaitForDisconnectAsync();
+        }
+        catch
+        {
+            // 连接异常断开
+        }
+        finally
+        {
+            if (!_disposed)
+            {
+                _hub = null;
+                await RaiseConnectionStateChangedAsync(false);
+            }
+        }
+    }
+
+    internal async Task SendHeartbeatAsync()
+    {
+        if (_hub is not null)
+        {
+            await _hub.SendAsync("heartbeat");
+        }
+    }
+
+    private async Task RaiseConnectionStateChangedAsync(bool connected)
+    {
+        ConnectionStateChangedSync?.Invoke(connected);
+
+        if (ConnectionStateChangedAsync is not null)
+        {
+            await ConnectionStateChangedAsync.Invoke(connected);
+        }
     }
 
     /// <summary>
@@ -92,6 +129,7 @@ public class NotificationClient : INotificationReceiver, IAsyncDisposable
             await _hub.DisposeAsync();
             _hub = null;
             ClientName = null;
+            await RaiseConnectionStateChangedAsync(false);
         }
     }
 
@@ -106,14 +144,10 @@ public class NotificationClient : INotificationReceiver, IAsyncDisposable
         }
         else
         {
-            OnUnknownMessage?.Invoke(message.Type, message.Data);
+            UnknownMessageReceivedSync?.Invoke(message.Type, message.Data);
+            UnknownMessageReceivedAsync?.Invoke(message.Type, message.Data);
         }
     }
-
-    /// <summary>
-    /// 收到未注册类型的消息时触发
-    /// </summary>
-    public event Action<string, byte[]>? OnUnknownMessage;
 
     /// <summary>
     /// 释放资源
@@ -124,7 +158,7 @@ public class NotificationClient : INotificationReceiver, IAsyncDisposable
         _disposed = true;
 
         await DisconnectAsync();
-        _channel.Dispose();
+        Channel.Dispose();
         GC.SuppressFinalize(this);
     }
 }
