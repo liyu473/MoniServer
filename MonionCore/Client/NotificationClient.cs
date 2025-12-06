@@ -70,6 +70,9 @@ public class NotificationClient : INotificationReceiver, IAsyncDisposable
 
         ClientName = clientName;
         await ConnectInternalAsync();
+        
+        // 启动断线监听
+        _ = WaitForDisconnectAsync();
     }
 
     internal async Task ConnectInternalAsync()
@@ -98,14 +101,6 @@ public class NotificationClient : INotificationReceiver, IAsyncDisposable
                 _hub = null;
                 await RaiseConnectionStateChangedAsync(false);
             }
-        }
-    }
-
-    internal async Task SendHeartbeatAsync()
-    {
-        if (_hub is not null)
-        {
-            await _hub.SendAsync("heartbeat");
         }
     }
 

@@ -2,6 +2,7 @@
     x:Class="MoniClient.MainWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:MoniClient.Converters"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:ikw="http://schemas.inkore.net/lib/ui/wpf"
     xmlns:local="clr-namespace:MoniClient"
@@ -15,57 +16,116 @@
     ui:WindowHelper.SystemBackdropType="Mica"
     ui:WindowHelper.UseModernWindowStyle="True"
     mc:Ignorable="d">
-    <ikw:SimpleStackPanel VerticalAlignment="Center" Spacing="5">
-        <TextBlock
-            FontSize="24"
-            FontWeight="Bold"
-            Text="Test MagicOnion"
-            TextAlignment="Center" />
+    <Window.Resources>
+        <converters:InverseBoolConverter x:Key="InverseBoolConverter" />
+    </Window.Resources>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
 
-        <Button
-            Margin="0,20,0,0"
-            HorizontalAlignment="Center"
-            Command="{Binding CalculatorCommand}"
-            Content="Calculaor" />
-        <Button
-            Margin="0,20,0,0"
-            HorizontalAlignment="Center"
-            Command="{Binding SayHelloCommand}"
-            Content="SayHello" />
-        <Button
-            Margin="0,20,0,0"
-            HorizontalAlignment="Center"
-            Command="{Binding GetPersonCommand}"
-            Content="GetPerson" />
-
+        <!--  左侧：普通服务调用  -->
         <ikw:SimpleStackPanel
+            Grid.Column="0"
             Margin="20"
-            HorizontalAlignment="Center"
-            Orientation="Horizontal"
-            Spacing="20">
+            VerticalAlignment="Center"
+            Spacing="10">
+            <TextBlock
+                FontSize="20"
+                FontWeight="Bold"
+                Text="Unary 服务"
+                TextAlignment="Center" />
+
+            <Button
+                Margin="0,10,0,0"
+                HorizontalAlignment="Center"
+                Command="{Binding CalculatorCommand}"
+                Content="Calculator" />
             <Button
                 HorizontalAlignment="Center"
-                Command="{Binding JoinRoomCommand}"
-                Content="加入房间" />
-            <Button Command="{Binding LeaveRoomCommand}" Content="离开房间" />
-        </ikw:SimpleStackPanel>
-
-        <ikw:SimpleStackPanel
-            Margin="20"
-            HorizontalAlignment="Center"
-            Orientation="Horizontal"
-            Spacing="20">
+                Command="{Binding SayHelloCommand}"
+                Content="SayHello" />
             <Button
                 HorizontalAlignment="Center"
-                Command="{Binding ServerSendForAllCommand}"
-                Content="让服务器广播消息" />
-            <Button Command="{Binding ServerSendForSingleCommand}" Content="让服务器指定此客户端发送" />
+                Command="{Binding GetPersonCommand}"
+                Content="GetPerson" />
         </ikw:SimpleStackPanel>
 
-        <Button
-            Margin="0,20,0,0"
-            HorizontalAlignment="Center"
-            Command="{Binding SendPersonCommand}"
-            Content="广播Person类" />
-    </ikw:SimpleStackPanel>
+        <!--  右侧：StreamingHub 通知  -->
+        <ikw:SimpleStackPanel
+            Grid.Column="1"
+            Margin="20"
+            VerticalAlignment="Center"
+            Spacing="10">
+            <TextBlock
+                FontSize="20"
+                FontWeight="Bold"
+                Text="StreamingHub 通知"
+                TextAlignment="Center" />
+
+            <!--  连接状态显示  -->
+            <ikw:SimpleStackPanel
+                Margin="0,10,0,0"
+                HorizontalAlignment="Center"
+                Orientation="Horizontal"
+                Spacing="10">
+                <Ellipse
+                    Width="12"
+                    Height="12"
+                    VerticalAlignment="Center">
+                    <Ellipse.Style>
+                        <Style TargetType="Ellipse">
+                            <Setter Property="Fill" Value="Gray" />
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsConnected}" Value="True">
+                                    <Setter Property="Fill" Value="LimeGreen" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Ellipse.Style>
+                </Ellipse>
+                <TextBlock VerticalAlignment="Center" Text="{Binding ConnectionStatus}" />
+            </ikw:SimpleStackPanel>
+
+            <!--  加入/离开房间  -->
+            <ikw:SimpleStackPanel
+                Margin="0,10,0,0"
+                HorizontalAlignment="Center"
+                Orientation="Horizontal"
+                Spacing="10">
+                <Button
+                    Command="{Binding JoinRoomCommand}"
+                    Content="加入房间"
+                    IsEnabled="{Binding IsConnected, Converter={StaticResource InverseBoolConverter}}" />
+                <Button
+                    Command="{Binding LeaveRoomCommand}"
+                    Content="离开房间"
+                    IsEnabled="{Binding IsConnected}" />
+            </ikw:SimpleStackPanel>
+
+            <!--  服务器推送  -->
+            <ikw:SimpleStackPanel
+                Margin="0,10,0,0"
+                HorizontalAlignment="Center"
+                Orientation="Horizontal"
+                Spacing="10">
+                <Button
+                    Command="{Binding ServerSendForAllCommand}"
+                    Content="广播消息"
+                    IsEnabled="{Binding IsConnected}" />
+                <Button
+                    Command="{Binding ServerSendForSingleCommand}"
+                    Content="定向推送"
+                    IsEnabled="{Binding IsConnected}" />
+            </ikw:SimpleStackPanel>
+
+            <Button
+                Margin="0,10,0,0"
+                HorizontalAlignment="Center"
+                Command="{Binding SendPersonCommand}"
+                Content="广播Person类"
+                IsEnabled="{Binding IsConnected}" />
+        </ikw:SimpleStackPanel>
+    </Grid>
 </Window>

@@ -74,33 +74,6 @@ public static class NotificationClientExtensions
     }
 
     /// <summary>
-    /// 启用心跳检测
-    /// </summary>
-    /// <param name="client">通知客户端</param>
-    /// <param name="interval">心跳间隔</param>
-    /// <param name="onHeartbeat">心跳发送成功回调（同步）</param>
-    /// <param name="onHeartbeatAsync">心跳发送成功回调（异步）</param>
-    /// <param name="onHeartbeatFailed">心跳失败回调（同步）</param>
-    /// <param name="onHeartbeatFailedAsync">心跳失败回调（异步）</param>
-    /// <returns>心跳管理器</returns>
-    public static HeartbeatHandler EnableHeartbeat(
-        this NotificationClient client,
-        TimeSpan? interval = null,
-        Action? onHeartbeat = null,
-        Func<Task>? onHeartbeatAsync = null,
-        Action<Exception>? onHeartbeatFailed = null,
-        Func<Exception, Task>? onHeartbeatFailedAsync = null)
-    {
-        var handler = new HeartbeatHandler(client, interval ?? TimeSpan.FromSeconds(30));
-        handler.HeartbeatSent += onHeartbeat;
-        handler.HeartbeatSentAsync += onHeartbeatAsync;
-        handler.HeartbeatFailed += onHeartbeatFailed;
-        handler.HeartbeatFailedAsync += onHeartbeatFailedAsync;
-        handler.Start();
-        return handler;
-    }
-
-    /// <summary>
     /// 创建轮询服务
     /// </summary>
     public static PollingService<TService, TResult> CreatePolling<TService, TResult>(

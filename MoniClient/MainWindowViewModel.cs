@@ -1,19 +1,44 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using LyuMonionCore.Client;
+using LyuMonionCore.Client.Handlers;
 using MoniShared.SharedDto;
 using MoniShared.SharedIService;
 using MessageBox = iNKORE.UI.WPF.Modern.Controls.MessageBox;
 
 namespace MoniClient;
 
-public partial class MainWindowViewModel(IMonionService monion, NotificationClient notificationClient)
-    : ObservableObject
+public partial class MainWindowViewModel : ObservableObject
 {
+    private readonly IMonionService _monion;
+    private readonly NotificationClient _notificationClient;
+    private AutoReconnectHandler? _reconnectHandler;
+
+    [ObservableProperty]
+    private bool _isConnected;
+
+    [ObservableProperty]
+    private string _connectionStatus = "未连接";
+
+    public MainWindowViewModel(IMonionService monion, NotificationClient notificationClient)
+    {
+        _monion = monion;
+        _notificationClient = notificationClient;
+
+        // 监听连接状态变化
+        _notificationClient.OnConnectionStateChanged(OnConnectionStateChanged);
+    }
+
+    private void OnConnectionStateChanged(bool connected)
+    {
+        IsConnected = connected;
+        ConnectionStatus = connected ? "已连接" : "未连接";
+    }
+
     [RelayCommand]
     private async Task Calculator()
     {
-        var client = monion.Create<ICalculator>();
+        var client = _monion.Create<ICalculator>();
         var result = await client.SumAsync(1, 2);
         MessageBox.Show($"收到结果{result}");
     }
@@ -21,7 +46,7 @@ public partial class MainWindowViewModel(IMonionService monion, NotificationClie
     [RelayCommand]
     private async Task GetPerson()
     {
-        var client = monion.Create<IPersonService>();
+        var client = _monion.Create<IPersonService>();
         var result = await client.GetPerson();
         MessageBox.Show($"收到结果{result}");
     }
@@ -29,7 +54,7 @@ public partial class MainWindowViewModel(IMonionService monion, NotificationClie
     [RelayCommand]
     private async Task SayHello()
     {
-        var client = monion.Create<IHelloService>();
+        var client = _monion.Create<IHelloService>();
         var result = await client.SayHello("小明");
         MessageBox.Show(result);
     }
@@ -37,30 +62,39 @@ public partial class MainWindowViewModel(IMonionService monion, NotificationClie
     [RelayCommand]
     private async Task JoinRoom()
     {
-        notificationClient
+        _notificationClient
             .On<string>(OnStringReceived)
             .On<Person>(OnPersonReceived);
 
-        await notificationClient.ConnectAsync("Client1");
+        // 启用自动重连
+        _reconnectHandler = _notificationClient.EnableAutoReconnect(
+            maxRetries: 3, // 无限重试
+            retryInterval: TimeSpan.FromSeconds(3),
+            onReconnectAttempt: (current, max) => ConnectionStatus = $"重连中 ({current})...",
+            onReconnectFailed: () => ConnectionStatus = "重连失败"
+        );
+
+        await _notificationClient.ConnectAsync("Client1");
     }
 
     [RelayCommand]
     private async Task LeaveRoom()
     {
-        await notificationClient.DisconnectAsync();
+        _reconnectHandler?.Dispose();
+        await _notificationClient.DisconnectAsync();
     }
 
     [RelayCommand]
     private async Task ServerSendForAll()
     {
-        var client = monion.Create<INotification>();
+        var client = _monion.Create<INotification>();
         await client.SendMessageFor("");
     }
 
     [RelayCommand]
     private async Task ServerSendForSingle()
     {
-        var client = monion.Create<INotification>();
+        var client = _monion.Create<INotification>();
         await client.SendMessageFor("Client1");
     }
 
@@ -70,7 +104,7 @@ public partial class MainWindowViewModel(IMonionService monion, NotificationClie
     [RelayCommand]
     private async Task SendPerson()
     {
-        var client = monion.Create<INotification>();
+        var client = _monion.Create<INotification>();
         await client.SendPersonFor(
             new Person()
             {
