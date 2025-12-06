@@ -1,6 +1,6 @@
 using MagicOnion;
 
-namespace LyuMonionCore.Notification;
+namespace LyuMonionCore.Abstractions;
 
 /// <summary>
 /// 服务器实现（主房间，客户端）

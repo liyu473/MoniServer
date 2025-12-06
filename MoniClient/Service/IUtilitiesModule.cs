@@ -1,5 +1,5 @@
 ﻿using Jab;
-using LyuMonionCore.Notification;
+using LyuMonionCore.Abstractions;
 
 namespace MoniClient.Service;
 

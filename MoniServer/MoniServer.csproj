@@ -7,9 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="LyuLogExtension" Version="1.5.1" />
+    <PackageReference Include="LyuLogExtension" Version="1.6.2" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.0" />
-    <PackageReference Include="Scalar.AspNetCore" Version="2.11.0" />
+    <PackageReference Include="Scalar.AspNetCore" Version="2.11.1" />
   </ItemGroup>
 
   <ItemGroup>

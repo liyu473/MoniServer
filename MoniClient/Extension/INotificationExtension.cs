@@ -1,4 +1,4 @@
-﻿using LyuMonionCore.Notification;
+﻿using LyuMonionCore.Abstractions;
 using MoniClient.Service;
 
 namespace MoniClient.Extension;

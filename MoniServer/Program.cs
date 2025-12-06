@@ -1,37 +1,23 @@
-using LogExtension;
-using LyuMonionCore.Notification;
-using MoniServer.Services;
+using LogExtension.Builder;
+using LogExtension.Extensions;
+using LyuMonionCore.Server;
 using Scalar.AspNetCore;
 
-var builder = WebApplication.CreateBuilder(new WebApplicationOptions
-{
-    ContentRootPath = AppContext.BaseDirectory
-});
+var builder = WebApplication.CreateBuilder(
+    new WebApplicationOptions { ContentRootPath = AppContext.BaseDirectory }
+);
 
 // Self Log Nuget Package
-builder.Services.AddZLogger(config =>
-{
-    var logsPath = Path.Combine(builder.Environment.ContentRootPath, "logs");
-    config.InfoLogPath = logsPath + Path.DirectorySeparatorChar;
-    config.TraceLogPath = Path.Combine(logsPath, "trace") + Path.DirectorySeparatorChar;
-
-    // 对trace文件夹不生效
-    config.CategoryFilters["Microsoft"] = LogLevel.Warning;
-    config.CategoryFilters["Microsoft.AspNetCore"] = LogLevel.Warning;
-    config.CategoryFilters["Microsoft.Hosting.Lifetime"] = LogLevel.Information;
-    config.CategoryFilters["MagicOnion.Server"] = LogLevel.Warning;
-    
-    // 控制台输出
-    config.AdditionalConfiguration = logging =>
-    {
-        logging.AddZLoggerConsoleWithTimestamp();
-    };
-});
+builder.Services.AddZLogger(builder =>
+    builder
+        .WithConsoleDetails()
+        .WithConsoleFilter("Microsoft", LogLevel.Information)
+        .FilterMicrosoft()
+);
 
 builder.Services.AddMagicOnion();
 
-
-builder.Services.AddSingleton<INotificationPushService, NotificationPushService>();
+builder.Services.AddMonionNotification();
 
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 // 官方支持取代Swagger

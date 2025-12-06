@@ -1,7 +1,7 @@
-﻿using System.IO;
-using Grpc.Net.Client;
+﻿using Grpc.Net.Client;
 using Jab;
 using Microsoft.Extensions.Configuration;
+using System.IO;
 
 namespace MoniClient.Service;
 

@@ -1,6 +1,6 @@
 using MessagePack;
 
-namespace LyuMonionCore.Notification;
+namespace LyuMonionCore.Models;
 
 /// <summary>
 /// 通用通知消息

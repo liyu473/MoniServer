@@ -1,4 +1,4 @@
-namespace LyuMonionCore.Notification;
+namespace LyuMonionCore.Abstractions;
 
 /// <summary>
 /// 通知推送服务接口

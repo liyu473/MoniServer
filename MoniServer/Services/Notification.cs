@@ -1,5 +1,5 @@
 ﻿using Extensions;
-using LyuMonionCore.Notification;
+using LyuMonionCore.Abstractions;
 using MagicOnion;
 using MagicOnion.Server;
 using MoniShared.SharedDto;

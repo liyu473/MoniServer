@@ -1,6 +1,8 @@
+using LyuMonionCore.Abstractions;
+using LyuMonionCore.Models;
 using MessagePack;
 
-namespace LyuMonionCore.Notification;
+namespace LyuMonionCore.Client;
 
 /// <summary>
 /// 通知接收器基类 - 客户端继承此类并注册类型处理器

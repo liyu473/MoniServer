@@ -1,14 +1,16 @@
 using System.Collections.Concurrent;
+using LyuMonionCore.Abstractions;
+using LyuMonionCore.Models;
 using MagicOnion.Server.Hubs;
 using MessagePack;
 
-namespace LyuMonionCore.Notification;
+namespace LyuMonionCore.Server;
 
 /// <summary>
-/// 通知 Hub 基类 - 服务器端继承此类即可
-/// 一个客户端对应一个Hub(Base)实例
+/// 通知 Hub - 服务器端可直接使用或继承扩展
+/// 一个客户端对应一个Hub实例
 /// </summary>
-public abstract class NotificationHubBase
+public class NotificationHubBase
     : StreamingHubBase<INotificationHub, INotificationReceiver>,
         INotificationHub
 {
@@ -45,6 +47,7 @@ public abstract class NotificationHubBase
         return ValueTask.CompletedTask;
     }
 
+
     /// <summary>
     /// 客户端加入时回调（可重写）
     /// </summary>
@@ -56,9 +59,9 @@ public abstract class NotificationHubBase
     protected virtual void OnClientDisconnected(string clientName) { }
 
     /// <summary>
-    /// 推送任意类型数据给所有客户端
+    /// 推送任意类型数据给所有客户端（请通过 INotificationPushService 调用）
     /// </summary>
-    public static void PushToAll<T>(T data)
+    internal static void PushToAll<T>(T data)
     {
         var message = new NotificationMessage
         {
@@ -73,9 +76,9 @@ public abstract class NotificationHubBase
     }
 
     /// <summary>
-    /// 推送任意类型数据给指定客户端
+    /// 推送任意类型数据给指定客户端（请通过 INotificationPushService 调用）
     /// </summary>
-    public static bool PushToClient<T>(string clientName, T data)
+    internal static bool PushToClient<T>(string clientName, T data)
     {
         if (!_clients.TryGetValue(clientName, out var connectionId))
             return false;
@@ -94,17 +97,17 @@ public abstract class NotificationHubBase
     }
 
     /// <summary>
-    /// 获取所有已连接的客户端名称
+    /// 获取所有已连接的客户端名称（请通过 INotificationPushService 调用）
     /// </summary>
-    public static IEnumerable<string> GetConnectedClients()
+    internal static IEnumerable<string> GetConnectedClients()
     {
         return _clients.Keys;
     }
 
     /// <summary>
-    /// 检查客户端是否在线
+    /// 检查客户端是否在线（请通过 INotificationPushService 调用）
     /// </summary>
-    public static bool IsClientConnected(string clientName)
+    internal static bool IsClientConnected(string clientName)
     {
         return _clients.ContainsKey(clientName);
     }

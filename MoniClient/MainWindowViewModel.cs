@@ -1,7 +1,7 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Grpc.Net.Client;
-using LyuMonionCore.Notification;
+using LyuMonionCore.Abstractions;
 using MagicOnion.Client;
 using MoniClient.Extension;
 using MoniClient.Service;
