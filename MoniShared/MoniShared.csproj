@@ -12,6 +12,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\MonionCore\LyuMonionCore.csproj" />
+    <ProjectReference Include="..\LyuMonion.JwtAuth\LyuMonion.JwtAuth.csproj" />
   </ItemGroup>
 
 </Project>

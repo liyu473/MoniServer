@@ -1,10 +1,14 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Grpc.Core;
+using LogExtension;
+using LyuMonion.JwtAuth.Client;
 using LyuMonionCore.Client;
 using LyuMonionCore.Client.Handlers;
 using LyuMonionCore.Client.Polling;
 using MoniShared.SharedDto;
 using MoniShared.SharedIService;
+using ZLogger;
 using MessageBox = iNKORE.UI.WPF.Modern.Controls.MessageBox;
 
 namespace MoniClient;
@@ -13,6 +17,7 @@ public partial class MainWindowViewModel : ObservableObject
 {
     private readonly IMonionService _monion;
     private readonly NotificationClient _notificationClient;
+    private readonly TokenStore _tokenStore;
     private AutoReconnectHandler? _reconnectHandler;
     private IPollingHandle? _heartbeatPolling;
 
@@ -25,10 +30,14 @@ public partial class MainWindowViewModel : ObservableObject
     [ObservableProperty]
     private string _connectionStatus = "未连接";
 
-    public MainWindowViewModel(IMonionService monion, NotificationClient notificationClient)
+    [ObservableProperty]
+    private string _tokenStatus = "未登录";
+
+    public MainWindowViewModel(IMonionService monion, NotificationClient notificationClient, TokenStore tokenStore)
     {
         _monion = monion;
         _notificationClient = notificationClient;
+        _tokenStore = tokenStore;
 
         // 监听连接状态变化
         _notificationClient.OnConnectionStateChanged(OnConnectionStateChanged);
@@ -50,40 +59,100 @@ public partial class MainWindowViewModel : ObservableObject
     {
         _heartbeatPolling = _monion.EnablePolling<IHelloService, string>(
             service => service.SayHello("heartbeat"),
-            TimeSpan.FromSeconds(0.3),
+            TimeSpan.FromSeconds(3),
             onData: _ => IsHeartbeatFlashing = !IsHeartbeatFlashing,
-            onError: ex => System.Diagnostics.Debug.WriteLine($"心跳失败: {ex.Message}")
+            onError: ex => ZLogFactory.Get<MainWindowViewModel>().ZLogError($"心跳失败:{ex}")
         );
+    }
 
-        //add other polly works here if needed
+    /// <summary>
+    /// 登录获取 Token
+    /// </summary>
+    [RelayCommand]
+    private async Task Login()
+    {
+        try
+        {
+            var authService = _monion.Create<IAuthService>();
+            var token = await authService.Login("admin", "123456");
+
+            if (token is not null)
+            {
+                _tokenStore.Token = token;
+                TokenStatus = "已登录 ✓";
+                MessageBox.Show("登录成功！Token 已保存");
+            }
+            else
+            {
+                MessageBox.Show("登录失败");
+            }
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"登录异常: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// 登出清除 Token
+    /// </summary>
+    [RelayCommand]
+    private void Logout()
+    {
+        _tokenStore.Clear();
+        TokenStatus = "未登录";
+        MessageBox.Show("已登出");
+    }
+
+    /// <summary>
+    /// 通用调用包装，处理认证失败等错误
+    /// </summary>
+    private async Task SafeCallAsync(Func<Task> action)
+    {
+        try
+        {
+            await action();
+        }
+        catch (RpcException ex) when (ex.StatusCode == StatusCode.Unauthenticated)
+        {
+            MessageBox.Show("认证失败，请先登录！");
+        }
+        catch (RpcException ex)
+        {
+            MessageBox.Show($"RPC 错误: {ex.Status.Detail}");
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"错误: {ex.Message}");
+        }
     }
 
     [RelayCommand]
-    private async Task Calculator()
+    private Task Calculator() => SafeCallAsync(async () =>
     {
         var client = _monion.Create<ICalculator>();
         var result = await client.SumAsync(1, 2);
         MessageBox.Show($"收到结果{result}");
-    }
+    });
 
     [RelayCommand]
-    private async Task GetPerson()
+    private Task GetPerson() => SafeCallAsync(async () =>
     {
         var client = _monion.Create<IPersonService>();
         var result = await client.GetPerson();
         MessageBox.Show($"收到结果{result}");
-    }
+    });
 
     [RelayCommand]
-    private async Task SayHello()
+    private Task SayHello() => SafeCallAsync(async () =>
     {
         var client = _monion.Create<IHelloService>();
         var result = await client.SayHello("小明");
         MessageBox.Show(result);
-    }
+    });
 
     [RelayCommand]
-    private async Task JoinRoom()
+    private Task JoinRoom() => SafeCallAsync(async () =>
     {
         _notificationClient
             .On<string>(OnStringReceived)
@@ -98,35 +167,34 @@ public partial class MainWindowViewModel : ObservableObject
         );
 
         await _notificationClient.ConnectAsync("Client1");
-    }
+    });
 
     [RelayCommand]
     private async Task LeaveRoom()
     {
         _reconnectHandler?.Dispose();
-
         await _notificationClient.DisconnectAsync();
     }
 
     [RelayCommand]
-    private async Task ServerSendForAll()
+    private Task ServerSendForAll() => SafeCallAsync(async () =>
     {
         var client = _monion.Create<INotification>();
         await client.SendMessageFor("");
-    }
+    });
 
     [RelayCommand]
-    private async Task ServerSendForSingle()
+    private Task ServerSendForSingle() => SafeCallAsync(async () =>
     {
         var client = _monion.Create<INotification>();
         await client.SendMessageFor("Client1");
-    }
+    });
 
     private void OnStringReceived(string msg) => MessageBox.Show($"[字符串] {msg}");
     private void OnPersonReceived(Person person) => MessageBox.Show($"[Person] {person}");
 
     [RelayCommand]
-    private async Task SendPerson()
+    private Task SendPerson() => SafeCallAsync(async () =>
     {
         var client = _monion.Create<INotification>();
         await client.SendPersonFor(
@@ -137,5 +205,5 @@ public partial class MainWindowViewModel : ObservableObject
                 Age = 20,
             }
         );
-    }
+    });
 }
