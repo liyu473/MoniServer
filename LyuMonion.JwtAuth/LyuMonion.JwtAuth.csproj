@@ -1,0 +1,30 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFrameworks>net8.0;net9.0;net10.0</TargetFrameworks>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+
+		<!-- NuGet 包信息 -->
+		<PackageId>LyuMonion.JwtAuth</PackageId>
+		<Version>1.0.0</Version>
+		<Authors>Liyu</Authors>
+		<Description>为 LyuMonionCore 提供 JWT 认证扩展</Description>
+		<PackageTags>MagicOnion;JWT;Auth;gRPC</PackageTags>
+
+		<!-- GitHub 仓库信息 -->
+		<RepositoryUrl>https://github.com/liyu473/LyuMonionCore</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageProjectUrl>https://github.com/liyu473/LyuMonionCore</PackageProjectUrl>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+
+		<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="MagicOnion.Server" Version="7.0.6" />
+		<PackageReference Include="Grpc.Net.Client" Version="2.67.0" />
+		<PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.3.1" />
+	</ItemGroup>
+
+</Project>

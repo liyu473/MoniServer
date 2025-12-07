@@ -3,4 +3,5 @@
   <Project Path="MonionCore/LyuMonionCore.csproj" Id="55712591-5d82-461c-8978-d9726f95c816" />
   <Project Path="MoniServer/MoniServer.csproj" />
   <Project Path="MoniShared/MoniShared.csproj" />
+  <Project Path="LyuMonion.JwtAuth/LyuMonion.JwtAuth.csproj" />
 </Solution>
