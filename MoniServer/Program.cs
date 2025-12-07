@@ -11,7 +11,9 @@ var builder = WebApplication.CreateBuilder(
 builder.Services.AddZLogger(builder =>
     builder
         .WithConsoleDetails()
-        .WithConsoleFilter("Microsoft", LogLevel.Information)
+        .WithConsoleFilter("Grpc", LogLevel.Warning)
+        .WithConsoleFilter("Microsoft", LogLevel.Warning)
+        .WithConsoleFilter("MagicOnion", LogLevel.Warning)
         .FilterMicrosoft()
 );
 

@@ -23,6 +23,12 @@ public abstract class NotificationHubBase
 
     public async Task JoinAsync(string clientName)
     {
+        // 禁止同名客户端
+        if (!_clients.TryAdd(clientName, ConnectionId))
+        {
+            throw new InvalidOperationException($"Client '{clientName}' already connected.");
+        }
+
         _clientName = clientName;
         var room = await Group.AddAsync(DefaultRoom);
 
@@ -31,7 +37,6 @@ public abstract class NotificationHubBase
             _globalRoom = room;
         }
 
-        _clients[clientName] = ConnectionId;
         OnClientJoined(clientName, ConnectionId);
     }
 
