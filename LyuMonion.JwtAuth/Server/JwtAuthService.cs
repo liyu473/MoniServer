@@ -22,7 +22,7 @@ internal class JwtAuthService(JwtAuthOptions options) : IJwtAuthService
         };
         claims.AddRange(additionalClaims);
 
-        return GenerateToken(claims.ToArray());
+        return GenerateToken([.. claims]);
     }
 
     /// <summary>
@@ -30,7 +30,7 @@ internal class JwtAuthService(JwtAuthOptions options) : IJwtAuthService
     /// </summary>
     public string GenerateToken(params Claim[] claims)
     {
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.SecretKey));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.SecretKey!));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var allClaims = new List<Claim>(claims)
@@ -65,7 +65,7 @@ internal class JwtAuthService(JwtAuthOptions options) : IJwtAuthService
         try
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes(options.SecretKey);
+            var key = Encoding.UTF8.GetBytes(options.SecretKey!);
 
             var principal = tokenHandler.ValidateToken(token, new TokenValidationParameters
             {

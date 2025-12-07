@@ -97,8 +97,14 @@ public partial class MainWindowViewModel : ObservableObject
     /// 登出清除 Token
     /// </summary>
     [RelayCommand]
-    private void Logout()
+    private async Task Logout()
     {
+        // 断开 Hub 连接
+        _reconnectHandler?.Dispose();
+        _reconnectHandler = null;
+        await _notificationClient.DisconnectAsync();
+
+        // 清除 Token
         _tokenStore.Clear();
         TokenStatus = "未登录";
         MessageBox.Show("已登出");
