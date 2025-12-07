@@ -1,5 +1,6 @@
 using LogExtension.Builder;
 using LogExtension.Extensions;
+using LyuMonion.JwtAuth.Server;
 using LyuMonionCore.Server;
 using Scalar.AspNetCore;
 
@@ -22,7 +23,15 @@ builder.Services.AddZLogger(builder =>
         .AddFileOutput(logsPath)
 );
 
-builder.Services.AddMagicOnion();
+builder
+    .Services.AddMagicOnion()
+    .AddJwtAuth(options =>
+    {
+        options.SecretKey = "YourSuperSecretKeyAtLeast32Characters!";
+        options.Issuer = "MoniServer";
+        options.Audience = "MoniClient";
+        options.ExcludeServices("IAuthService"); // 登录接口不需要验证
+    });
 
 builder.Services.AddMonionNotification();
 

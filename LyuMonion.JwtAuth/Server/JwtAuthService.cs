@@ -8,28 +8,40 @@ namespace LyuMonion.JwtAuth.Server;
 /// <summary>
 /// JWT 认证服务实现
 /// </summary>
-public class JwtAuthService(JwtAuthOptions options) : IJwtAuthService
+internal class JwtAuthService(JwtAuthOptions options) : IJwtAuthService
 {
     /// <summary>
     /// 生成 Token
     /// </summary>
     public string GenerateToken(string userId, string userName, params Claim[] additionalClaims)
     {
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.SecretKey));
-        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, userId),
             new(ClaimTypes.Name, userName),
-            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
         };
         claims.AddRange(additionalClaims);
+
+        return GenerateToken(claims.ToArray());
+    }
+
+    /// <summary>
+    /// 生成 Token（自定义 Claims）
+    /// </summary>
+    public string GenerateToken(params Claim[] claims)
+    {
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.SecretKey));
+        var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+        var allClaims = new List<Claim>(claims)
+        {
+            new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+        };
 
         var token = new JwtSecurityToken(
             issuer: options.Issuer,
             audience: options.Audience,
-            claims: claims,
+            claims: allClaims,
             expires: DateTime.UtcNow.AddMinutes(options.ExpiresInMinutes),
             signingCredentials: credentials
         );

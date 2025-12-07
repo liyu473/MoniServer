@@ -6,7 +6,7 @@ namespace LyuMonion.JwtAuth.Server;
 /// <summary>
 /// 服务端 JWT 扩展方法
 /// </summary>
-public static class ServerExtensions
+public static class MagicOnionServerBuilderExtensions
 {
     /// <summary>
     /// 添加 JWT 认证
@@ -25,6 +25,13 @@ public static class ServerExtensions
     {
         var options = new JwtAuthOptions();
         configure?.Invoke(options);
+
+        // 验证必填项
+        if (string.IsNullOrWhiteSpace(options.SecretKey))
+            throw new InvalidOperationException("JwtAuthOptions.SecretKey is required. Please configure it in AddJwtAuth().");
+
+        if (options.SecretKey.Length < 32)
+            throw new InvalidOperationException("JwtAuthOptions.SecretKey must be at least 32 characters.");
 
         // 注册服务
         builder.Services.AddSingleton(options);

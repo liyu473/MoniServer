@@ -6,22 +6,22 @@ namespace LyuMonion.JwtAuth;
 public class JwtAuthOptions
 {
     /// <summary>
-    /// 密钥（至少32字符）
+    /// 密钥（至少32字符，必填）
     /// </summary>
-    public string SecretKey { get; set; } = "YourSuperSecretKeyAtLeast32Characters!";
+    public string? SecretKey { get; set; }
 
     /// <summary>
     /// 签发者
     /// </summary>
-    public string Issuer { get; set; } = "LyuMonion";
+    public string? Issuer { get; set; }
 
     /// <summary>
     /// 接收者
     /// </summary>
-    public string Audience { get; set; } = "LyuMonionClient";
+    public string? Audience { get; set; }
 
     /// <summary>
-    /// Token 过期时间（分钟）
+    /// Token 过期时间（分钟），默认60分钟
     /// </summary>
     public int ExpiresInMinutes { get; set; } = 60;
 

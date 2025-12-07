@@ -16,6 +16,12 @@ public interface IJwtAuthService
     string GenerateToken(string userId, string userName, params Claim[] additionalClaims);
 
     /// <summary>
+    /// 生成 Token（自定义 Claims）
+    /// </summary>
+    /// <param name="claims">所有 Claims</param>
+    string GenerateToken(params Claim[] claims);
+
+    /// <summary>
     /// 验证 Token
     /// </summary>
     bool ValidateToken(string token);
