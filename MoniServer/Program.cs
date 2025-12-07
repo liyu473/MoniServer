@@ -7,6 +7,8 @@ var builder = WebApplication.CreateBuilder(
     new WebApplicationOptions { ContentRootPath = AppContext.BaseDirectory }
 );
 
+var logsPath = Path.Combine(builder.Environment.ContentRootPath, "logs");
+
 // Self Log Nuget Package
 builder.Services.AddZLogger(builder =>
     builder
@@ -15,6 +17,9 @@ builder.Services.AddZLogger(builder =>
         .WithConsoleFilter("Microsoft", LogLevel.Warning)
         .WithConsoleFilter("MagicOnion", LogLevel.Warning)
         .FilterMicrosoft()
+        .WithFilter("Grpc", LogLevel.Warning)
+        .WithFilter("MagicOnion", LogLevel.Warning)
+        .AddFileOutput(logsPath)
 );
 
 builder.Services.AddMagicOnion();
