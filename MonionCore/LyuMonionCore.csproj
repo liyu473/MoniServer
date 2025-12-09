@@ -7,7 +7,7 @@
 
 		<!-- NuGet 包信息 -->
 		<PackageId>LyuMonionCore</PackageId>
-		<Version>1.2.1</Version>
+		<Version>1.2.2</Version>
 		<Authors>Liyu</Authors>
 		<Description>基于MagicOnion，简化服务器对多客户端的通信实现</Description>
 		<PackageTags>MagicOnion;Client;Hub</PackageTags>
@@ -23,7 +23,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="MagicOnion" Version="7.0.6" />
+		<PackageReference Include="MagicOnion" Version="7.0.7" />
 	</ItemGroup>
 
 </Project>
