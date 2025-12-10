@@ -2,6 +2,7 @@ using LogExtension.Builder;
 using LogExtension.Extensions;
 using LyuMonion.JwtAuth.Server;
 using LyuMonionCore.Server;
+using Microsoft.AspNetCore.SignalR;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(
@@ -30,7 +31,13 @@ builder
         options.SecretKey = "YourSuperSecretKeyAtLeast32Characters!";
         options.Issuer = "MoniServer";
         options.Audience = "MoniClient";
+        options.ExpiresInMinutes = 5;//无偏差
         options.ExcludeServices("IAuthService"); // 登录接口不需要验证
+        options.OnTokenValidated = async (context, serviceProvider) =>
+        {
+            // 额外的认证逻辑（使用场景：踢人下线）
+            // context.Fail("测试失败");
+        }; 
     });
 
 builder.Services.AddMonionNotification();

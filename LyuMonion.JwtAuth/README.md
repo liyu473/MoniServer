@@ -13,13 +13,28 @@ dotnet add package LyuMonion.JwtAuth
 ```csharp
 builder.Services.AddMagicOnion()
     .AddJwtAuth(options =>
-    {
-        options.SecretKey = "YourSuperSecretKeyAtLeast32Characters!";  // 必填，至少32字符
-        options.Issuer = "MyServer";           // 可选
-        options.Audience = "MyClient";         // 可选
-        options.ExpiresInMinutes = 60;         // 可选，默认60分钟
-        options.ExcludeServices("IAuthService"); // 排除不需要认证的服务
-    });
+                {
+                    options.SecretKey = "YourSuperSecretKeyAtLeast32Characters!";  // 必填，至少32字符
+                    options.Issuer = "MyServer";           // 可选
+                    options.Audience = "MyClient";         // 可选
+                    options.ExpiresInMinutes = 60;         // 可选，默认60分钟
+                    options.ExcludeServices("IAuthService"); // 排除不需要认证的服务
+                    options.OnTokenValidated = async (context, serviceProvider) =>
+                    {
+                        // 获取 userId（GenerateToken 第一个参数）
+                        var userId = context.Principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+                        // 获取 userName（GenerateToken 第二个参数）
+                        var userName = context.Principal.FindFirst(ClaimTypes.Name)?.Value;
+                        
+                        // 额外的认证逻辑（使用场景：踢人下线）
+                        if (string.IsNullOrEmpty(userId))
+                        {
+                            context.Fail("无效的用户ID");
+                            return;
+                        }
+                    };
+                });
 ```
 
 ### 创建认证服务
@@ -58,7 +73,7 @@ services.AddSingleton(tokenStore);
 // 创建带 JWT 认证的 GrpcChannel
 var channel = GrpcChannelBuilder
     .Create("http://localhost:5000")
-    .WithJwtAuth(tokenStore)
+    .WithJwtAuth(tokenStore)//或提供provider
     .Build();
 
 services.AddMonionClient(channel);
@@ -89,3 +104,4 @@ tokenStore.Clear();
 | Issuer | string | - | null | Token 签发者 |
 | Audience | string | - | null | Token 接收者 |
 | ExpiresInMinutes | int | - | 60 | Token 过期时间（分钟） |
+| OnTokenValidated | Func | - | null | Token 验证通过后的自定义回调 |

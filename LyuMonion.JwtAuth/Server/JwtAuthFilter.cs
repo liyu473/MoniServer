@@ -1,6 +1,7 @@
 using MagicOnion;
 using MagicOnion.Server;
 using MagicOnion.Server.Hubs;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace LyuMonion.JwtAuth.Server;
 
@@ -20,9 +21,22 @@ internal class JwtAuthFilter(IJwtAuthService jwtService, HashSet<string> exclude
         }
 
         var token = ExtractToken(context.CallContext.RequestHeaders);
-        if (string.IsNullOrEmpty(token) || !jwtService.ValidateToken(token))
+        if (string.IsNullOrEmpty(token))
         {
-            throw new ReturnStatusException(Grpc.Core.StatusCode.Unauthenticated, "Invalid or missing token");
+            throw new ReturnStatusException(Grpc.Core.StatusCode.Unauthenticated, "Missing token");
+        }
+
+        var serviceProvider = context.ServiceProvider;
+        var validationResult = await jwtService.ValidateTokenAsync(token, serviceProvider);
+
+        if (validationResult is null)
+        {
+            throw new ReturnStatusException(Grpc.Core.StatusCode.Unauthenticated, "Invalid token");
+        }
+
+        if (validationResult.IsFailed)
+        {
+            throw new ReturnStatusException(Grpc.Core.StatusCode.Unauthenticated, validationResult.FailureMessage ?? "Token validation failed");
         }
 
         await next(context);
@@ -71,9 +85,22 @@ internal class JwtAuthStreamingHubFilter(IJwtAuthService jwtService) : Streaming
                 ? authorization["Bearer ".Length..]
                 : authorization;
 
-        if (string.IsNullOrEmpty(token) || !jwtService.ValidateToken(token))
+        if (string.IsNullOrEmpty(token))
         {
-            throw new ReturnStatusException(Grpc.Core.StatusCode.Unauthenticated, "Invalid or missing token");
+            throw new ReturnStatusException(Grpc.Core.StatusCode.Unauthenticated, "Missing token");
+        }
+
+        var serviceProvider = context.ServiceContext.ServiceProvider;
+        var validationResult = await jwtService.ValidateTokenAsync(token, serviceProvider);
+
+        if (validationResult is null)
+        {
+            throw new ReturnStatusException(Grpc.Core.StatusCode.Unauthenticated, "Invalid token");
+        }
+
+        if (validationResult.IsFailed)
+        {
+            throw new ReturnStatusException(Grpc.Core.StatusCode.Unauthenticated, validationResult.FailureMessage ?? "Token validation failed");
         }
 
         await next(context);

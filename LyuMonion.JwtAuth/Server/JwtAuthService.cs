@@ -86,4 +86,24 @@ internal class JwtAuthService(JwtAuthOptions options) : IJwtAuthService
             return null;
         }
     }
+
+    /// <summary>
+    /// 验证 Token（异步，支持自定义验证回调）
+    /// </summary>
+    public async Task<TokenValidatedContext?> ValidateTokenAsync(string token, IServiceProvider serviceProvider)
+    {
+        var principal = ValidateTokenWithClaims(token);
+        if (principal is null)
+            return null;
+
+        var context = new TokenValidatedContext(principal);
+
+        // 执行自定义验证回调
+        if (options.OnTokenValidated is not null)
+        {
+            await options.OnTokenValidated(context, serviceProvider);
+        }
+
+        return context;
+    }
 }

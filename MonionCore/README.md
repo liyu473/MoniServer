@@ -28,7 +28,7 @@ builder.Services.AddMagicOnion();
         options.SecretKey = "YourSuperSecretKeyAtLeast32Characters!";  // 必填，至少32字符
         options.Issuer = "MyServer";           // 可选
         options.Audience = "MyClient";         // 可选
-        options.ExpiresInMinutes = 60;         // 可选，默认60分钟
+        options.ExpiresInMinutes = 60;         // 可选，默认60分钟（无时钟偏差）
         options.ExcludeServices("IAuthService"); // 排除不需要认证的服务
     });
 
