@@ -7,7 +7,7 @@
 
 		<!-- NuGet 包信息 -->
 		<PackageId>LyuMonion.JwtAuth</PackageId>
-		<Version>1.0.3</Version>
+		<Version>1.0.4</Version>
 		<Authors>Liyu</Authors>
 		<Description>为 LyuMonionCore 提供 JWT 认证扩展</Description>
 		<PackageTags>MagicOnion;JWT;Auth;gRPC</PackageTags>
