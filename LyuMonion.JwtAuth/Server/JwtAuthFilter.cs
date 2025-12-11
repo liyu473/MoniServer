@@ -1,7 +1,6 @@
 using MagicOnion;
 using MagicOnion.Server;
 using MagicOnion.Server.Hubs;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace LyuMonion.JwtAuth.Server;
 
