@@ -46,6 +46,11 @@ jobs:
           name: nuget-packages
           path: ./artifacts/*.nupkg
 
+      - name: Delete existing Release
+        run: gh release delete ${{ github.ref_name }} --yes || true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
